@@ -1,0 +1,49 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: parrot-network-service-canary
+spec:
+  type: NodePort
+  selector:
+    app: parrot-network
+    track: canary
+  ports:
+  - protocol: TCP
+    port: 9080
+    nodePort: 9081
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: parrot-network-deployment-canary
+  labels:
+    app: parrot-network
+spec:
+  replicas: $CANARY_REPLICAS
+  selector:
+    matchLabels:
+      app: parrot-network
+      track: canary
+  template:
+    metadata:
+      labels:
+        app: parrot-network
+        track: canary
+    spec:
+      containers:
+      - name: parrot-network
+        image: $DOCKER_IMAGE_NAME:$BUILD_NUMBER
+        ports:
+        - containerPort: 9080
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 9080
+          initialDelaySeconds: 15
+          timeoutSeconds: 1
+          periodSeconds: 10
+        resources:
+          requests:
+            cpu: 200m

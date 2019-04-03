@@ -20,7 +20,7 @@ RUN npm config set ignore-scripts false
 RUN yarn install
 
 # expose the main port for node
-EXPOSE 8080
+EXPOSE 9080
 
 # start the app
 CMD ["npm", "start"]
